@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="c289716e-d7cb-459f-9db0-b5dec69e7318" name="vpiska" url="http://82.146.43.4">
+        <fileTransfer host="82.146.43.4" port="22" rootFolder="/var/www/kirill/data" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+      <webServer id="9f6560ce-b5fd-4b3d-980c-a05bec22a54c" name="testege (project level)" url="http://62.109.31.37">
+        <fileTransfer host="62.109.31.37" port="22" rootFolder="/var/www/www-root/data" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
