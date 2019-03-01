@@ -167,6 +167,19 @@ Route::group(['middleware'=>['token','version'],'namespace' => 'Api\v2','prefix'
 
 });
 
+//GuestController
+Route::group(['middleware'=>['token','version'],'namespace' => 'Api\v2','prefix' => '/api/v2/guests' ], function (){
+
+    Route::get('/profile',['uses'=>'UserController@show']);
+    Route::post('/feedback',['uses'=>'FeedbackController@store']);
+    Route::post('/update',['uses'=>'UserController@update']);
+    Route::post('/update/balance',['uses'=>'UserController@updateBalance']);
+    Route::post('/update/number-view',['uses'=>'UserController@buyView']);
+    Route::post('/update/number-adding',['uses'=>'UserController@buyAdding']);
+
+
+});
+
 //NoteController
 Route::group(['middleware'=>['token','version'],'namespace' => 'Api\v2','prefix' => '/api/v2/notes' ], function (){
     Route::put('/update/{id?}',['uses'=>'NoteController@update']);
@@ -217,6 +230,7 @@ Route::group(['middleware'=>['token','version'],'namespace' => 'Api\v2','prefix'
 
 //Auth
 Route::post('/api/v2/users/login',['uses'=>'Api\v2\UserController@loginUser']);
+Route::post('/api/v2/guests/login',['uses'=>'Api\v2\GuestController@loginGuest']);
 Route::post('/api/v2/users/register',['uses'=>'Api\v2\UserController@create']);
 
 Route::get('/test',['uses'=>'AdminController@test']);
