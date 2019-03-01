@@ -29,11 +29,27 @@ class AppUser extends Model
         $user->imei = $imei;
         $user->image = $image;
         $user->age = $age;
+        $user->type = "auth";
        
         if($user->save()){
             return false;
         }else{
             return true;
+        }
+    }
+
+    public static function addGuest($imei){
+
+        $user = new AppUser();
+
+        $user->imei = $imei;
+        $user->nik_name = $imei;
+        $user->type = "guest";
+
+        if($user->save()){
+            return true;
+        }else{
+            return false;
         }
     }
 
@@ -86,6 +102,9 @@ class AppUser extends Model
         );
 
         $user = AppUser::find($userId);
+        if($user == null){
+            $user = Guest::find($userId);
+        }
         $user ->refresh_token = $refreshToken;
         $user->save();
 

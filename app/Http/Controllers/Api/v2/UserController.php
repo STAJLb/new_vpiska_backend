@@ -32,29 +32,64 @@ class UserController extends Controller
     public function create(Request $request)
     {
         Log::info('Данные регистрации'.$request);
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'bail|required|min:2|alpha_num',
-            'nik_name' => 'bail|required|min:2|alpha_num',
-            'password' => 'bail|required|min:6',
-            'sex' =>'bail|required',
-            'imei' =>'bail|required',
-            'age' =>'bail|required',
-        ]);
 
-        if ($validator->fails()) {
-            $errors = $validator->errors()->first();
-            $response['error'] = true;
-            $response['error_msg'] = $errors;
-            return json_encode($response);
+        $imei = $request->imei;
+        if($request->type == 'auth'){
+            $validator = Validator::make($request->all(), [
+                'first_name' => 'bail|required|min:2|alpha_num',
+                'nik_name' => 'bail|required|min:2|alpha_num',
+                'password' => 'bail|required|min:6',
+                'sex' =>'bail|required',
+                'imei' =>'bail|required',
+                'age' =>'bail|required',
+            ]);
+
+            if ($validator->fails()) {
+                $errors = $validator->errors()->first();
+                $response['error'] = true;
+                $response['error_msg'] = $errors;
+                return json_encode($response);
+            }
+
+            $first_name = $request->first_name;
+            $nikName = $request->nik_name;
+            $password = $request->password;
+            $sex = $request->sex;
+
+            $age = $request->age;
+            $image = 'http://lumpics.ru/wp-content/uploads/2017/11/Programmyi-dlya-sozdaniya-avatarok.png';
+        }else{
+
+            $reason = AppUser::checkImeiBanForRegister($imei);
+            if($reason != null){
+                $response = array(
+                    'error' => true,
+                    'error_msg' => "Ваш акканут заблокирован. По причине: ".$reason
+                );
+                return response()->json($response, 200,array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+            }
+            if(AppUser::select('id')->where('imei',$imei)->first() == null) {
+                if (AppUser::addGuest($imei) == false) {
+                    $response = array(
+                        'error' => true,
+                        'error_msg' => "Ошибка в процессе регистрации."
+                    );
+                    return response()->json($response, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+                }
+            }
+
+            $user = AppUser::select('id')->where('imei',$imei)->first();
+
+            $userId = $user->id;
+
+            $response["error"] = false;
+            $response["data_tokens"] = AppUser::createDataTokens($userId);
+
+            return response()->json($response, 200,array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+
         }
 
-        $first_name = $request->first_name;
-        $nikName = $request->nik_name;
-        $password = $request->password;
-        $sex = $request->sex;
-        $imei = $request->imei;
-        $age = $request->age;
-        $image = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+
 
         $error = AppUser::checkExitUser($nikName);
         if ($error == true) {
@@ -74,7 +109,7 @@ class UserController extends Controller
             return response()->json($response, 200,array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
         }
 
-        if (AppUser::addUser($first_name, $nikName, $password, $sex,$age ,$imei,$image) == true) {
+        if (AppUser::addUser($first_name, $nikName, $password, $sex,$age ,$imei,$image) == false) {
             $response = array(
                 'error' => true,
                 'error_msg' => "Ошибка в процессе регистрации."
